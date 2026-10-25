@@ -599,5 +599,70 @@ setLanguage($("language").value);
       }
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://zraoahkyvorwkcqtwmic.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_atUiMIzQufRTryXwdn9Z0w__qlPLMwj";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+  console.log("MyLife AI Supabase:", supabaseClient);
+</script>
+<section id="auth-section" style="max-width:400px;margin:30px auto;padding:24px;border:1px solid #ddd;border-radius:16px;font-family:Arial,sans-serif;">
+  <h2>MyLifeAI – Konto</h2>
+  <p>Registrieren oder anmelden</p>
+
+  <label for="auth-email">E-Mail</label>
+  <input id="auth-email" type="email" placeholder="name@example.com" style="display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 16px;">
+
+  <label for="auth-password">Passwort</label>
+  <input id="auth-password" type="password" placeholder="Mindestens 6 Zeichen" style="display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 16px;">
+
+  <button id="signup-button" type="button" style="padding:12px;margin-right:8px;">Registrieren</button>
+  <button id="login-button" type="button" style="padding:12px;">Anmelden</button>
+
+  <p id="auth-message" role="status"></p>
+</section>
+
+<script>
+  const emailInput = document.getElementById("auth-email");
+  const passwordInput = document.getElementById("auth-password");
+  const authMessage = document.getElementById("auth-message");
+
+  document.getElementById("signup-button").addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || password.length < 6) {
+      authMessage.textContent = "Bitte E-Mail und ein Passwort mit mindestens 6 Zeichen eingeben.";
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: "https://aghil-code.github.io/MylifeAI/"
+  }
+});
+
+    authMessage.textContent = error
+      ? "Registrierung fehlgeschlagen: " + error.message
+      : "Bitte prüfe dein E-Mail-Postfach und bestätige deine Registrierung.";
+  });
+
+  document.getElementById("login-button").addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    authMessage.textContent = error
+      ? "Anmeldung fehlgeschlagen: " + error.message
+      : "Du bist angemeldet!";
+  });
+</script>
 </body>
 </html>
