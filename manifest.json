@@ -1,0 +1,11 @@
+{
+  "name": "MyLife AI - Personal Assistant",
+  "short_name": "MyLife AI",
+  "description": "Personal appointments, calls and reminders",
+  "lang": "en",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101827",
+  "theme_color": "#101827"
+}

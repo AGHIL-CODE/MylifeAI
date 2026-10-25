@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<link rel="manifest" href="manifest.json">
+<title>MyLife AI</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: #101827;
+    color: #f1f5f9;
+    font-family: Arial, Tahoma, sans-serif;
+}
+
+.container { max-width: 950px; margin: auto; }
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.logo { color: #5eead4; font-size: 24px; font-weight: bold; }
+
+header, .panel {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+h1 { color: #5eead4; }
+h2 { font-size: 20px; }
+p { line-height: 1.8; color: #cbd5e1; }
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+button, select, input, textarea {
+    font: inherit;
+    border-radius: 9px;
+}
+
+button {
+    padding: 11px 16px;
+    border: 0;
+    cursor: pointer;
+}
+
+.tab {
+    background: #334155;
+    color: white;
+}
+
+.tab.active, .primary {
+    background: #5eead4;
+    color: #102027;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    background: #0f172a;
+    border: 1px solid #475569;
+    color: white;
+}
+
+.field { margin-bottom: 16px; }
+label { display: block; margin-bottom: 7px; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+}
+
+.notice {
+    padding: 14px;
+    border-radius: 10px;
+    background: #0f2d30;
+    color: #99f6e4;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    overflow-wrap: anywhere;
+}
+
+.item h3 { color: #5eead4; margin-top: 0; }
+
+.secondary { background: #334155; color: white; }
+.delete { background: #7f1d1d; color: white; margin-top: 8px; }
+.empty { color: #94a3b8; }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 500px) {
+    body { padding: 12px; }
+    header, .panel { padding: 16px; }
+}
+</style>
+</head>
+
+<body>
+<main class="container">
+
+    <div class="topbar">
+        <div class="logo">MyLife AI</div>
+        <select id="language" aria-label="Language">
+            <option value="fa">🇮🇷 فارسی</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="en">🇬🇧 English</option>
+        </select>
+    </div>
+
+    <header>
+        <h1 id="title">دستیار شخصی من</h1>
+        <p id="subtitle">قرارها، تماس‌ها و کارهای مهمت را در یک مکان مدیریت کن.</p>
+    </header>
+
+    <div class="notice" id="notice">
+        اطلاعات فعلاً در همین مرورگر ذخیره می‌شوند. یادآوری خودکار هنوز فعال نیست.
+    </div>
+
+    <nav class="tabs">
+        <button type="button" class="tab active" id="appointmentsTab">📅 قرارها</button>
+        <button type="button" class="tab" id="callsTab">📞 تماس‌ها</button>
+    </nav>
+
+    <section id="appointmentsSection">
+
+        <div class="panel">
+            <h2 id="appointmentFormTitle">ثبت قرار جدید</h2>
+
+            <form id="appointmentForm">
+                <div class="field">
+                    <label for="aName" id="aNameLabel">عنوان قرار *</label>
+                    <input id="aName" required maxlength="120">
+                </div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label for="aDate" id="aDateLabel">تاریخ *</label>
+                        <input type="date" id="aDate" required>
+                    </div>
+                    <div class="field">
+                        <label for="aTime" id="aTimeLabel">ساعت *</label>
+                        <input type="time" id="aTime" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="aAddress" id="aAddressLabel">آدرس</label>
+                    <input id="aAddress" maxlength="250">
+                </div>
+
+                <div class="field">
+                    <label for="aNotes" id="aNotesLabel">توضیحات</label>
+                    <textarea id="aNotes" maxlength="2000"></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="aReminder" id="aReminderLabel">زمان یادآوری</label>
+                    <select id="aReminder">
+                        <option value="1440" id="oneDay">یک روز قبل</option>
+                        <option value="60" id="oneHour">یک ساعت قبل</option>
+                        <option value="15" id="fifteenMinutes">۱۵ دقیقه قبل</option>
+                        <option value="0" id="noReminder">بدون یادآوری</option>
+                    </select>
+                </div>
+
+                <button class="primary" type="submit" id="aSave">ذخیره قرار</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2 id="appointmentsListTitle">قرارهای ثبت‌شده</h2>
+            <div id="appointmentsList"></div>
+        </div>
+    </section>
+
+    <section id="callsSection" hidden>
+
+        <div class="panel">
+            <h2 id="callFormTitle">ثبت تماس جدید</h2>
+
+            <form id="callForm">
+                <div class="field">
+                    <label for="cName" id="cNameLabel">نام شخص *</label>
+                    <input id="cName" required maxlength="120">
+                </div>
+
+                <div class="field">
+                    <label for="cPhone" id="cPhoneLabel">شماره تلفن</label>
+                    <input id="cPhone" type="tel" maxlength="40">
+                </div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label for="cDate" id="cDateLabel">تاریخ تماس *</label>
+                        <input id="cDate" type="date" required>
+                    </div>
+                    <div class="field">
+                        <label for="cTime" id="cTimeLabel">ساعت تماس *</label>
+                        <input id="cTime" type="time" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="cTopic" id="cTopicLabel">موضوع تماس</label>
+                    <textarea id="cTopic" maxlength="2000"></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="cReminder" id="cReminderLabel">زمان یادآوری</label>
+                    <select id="cReminder">
+                        <option value="1440" id="cOneDay">یک روز قبل</option>
+                        <option value="60" id="cOneHour">یک ساعت قبل</option>
+                        <option value="15" id="cFifteenMinutes">۱۵ دقیقه قبل</option>
+                        <option value="0" id="cNoReminder">بدون یادآوری</option>
+                    </select>
+                </div>
+
+                <button class="primary" type="submit" id="cSave">ذخیره تماس</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2 id="callsListTitle">تماس‌های ثبت‌شده</h2>
+            <div id="callsList"></div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const translations = {
+fa: {
+    dir:"rtl", title:"دستیار شخصی من",
+    subtitle:"قرارها، تماس‌ها و کارهای مهمت را در یک مکان مدیریت کن.",
+    notice:"اطلاعات فعلاً در همین مرورگر ذخیره می‌شوند. یادآوری خودکار هنوز فعال نیست.",
+    appointmentsTab:"📅 قرارها", callsTab:"📞 تماس‌ها",
+    appointmentFormTitle:"ثبت قرار جدید", aNameLabel:"عنوان قرار *",
+    aDateLabel:"تاریخ *", aTimeLabel:"ساعت *", aAddressLabel:"آدرس",
+    aNotesLabel:"توضیحات", aReminderLabel:"زمان یادآوری",
+    oneDay:"یک روز قبل", oneHour:"یک ساعت قبل",
+    fifteenMinutes:"۱۵ دقیقه قبل", noReminder:"بدون یادآوری",
+    aSave:"ذخیره قرار", appointmentsListTitle:"قرارهای ثبت‌شده",
+    callFormTitle:"ثبت تماس جدید", cNameLabel:"نام شخص *",
+    cPhoneLabel:"شماره تلفن", cDateLabel:"تاریخ تماس *",
+    cTimeLabel:"ساعت تماس *", cTopicLabel:"موضوع تماس",
+    cReminderLabel:"زمان یادآوری", cOneDay:"یک روز قبل",
+    cOneHour:"یک ساعت قبل", cFifteenMinutes:"۱۵ دقیقه قبل",
+    cNoReminder:"بدون یادآوری", cSave:"ذخیره تماس",
+    callsListTitle:"تماس‌های ثبت‌شده", emptyAppointments:"هنوز قراری ثبت نکرده‌ای.",
+    emptyCalls:"هنوز تماسی ثبت نکرده‌ای.", date:"تاریخ", time:"ساعت",
+    address:"آدرس", notes:"توضیحات", person:"شخص", phone:"تلفن",
+    topic:"موضوع", reminder:"یادآوری", none:"ندارد",
+    delete:"حذف", confirmDelete:"این مورد حذف شود؟",
+    savedAppointment:"قرار ذخیره شد.", savedCall:"تماس ذخیره شد.",
+    deleted:"مورد حذف شد.", error:"ذخیره‌سازی انجام نشد.",
+    invalidDate:"تاریخ و ساعت باید در آینده باشند.",
+    aNamePlaceholder:"مثلاً وقت دکتر", aAddressPlaceholder:"آدرس محل قرار",
+    aNotesPlaceholder:"مدارک لازم یا نکات مهم",
+    cNamePlaceholder:"نام شخص", cPhonePlaceholder:"مثلاً 0176...",
+    cTopicPlaceholder:"درباره چه موضوعی باید صحبت کنی؟"
+},
+de: {
+    dir:"ltr", title:"Mein persönlicher Assistent",
+    subtitle:"Verwalte Termine, Anrufe und wichtige Aufgaben an einem Ort.",
+    notice:"Die Daten werden vorerst in diesem Browser gespeichert. Automatische Erinnerungen sind noch nicht aktiv.",
+    appointmentsTab:"📅 Termine", callsTab:"📞 Anrufe",
+    appointmentFormTitle:"Neuen Termin eintragen", aNameLabel:"Terminbezeichnung *",
+    aDateLabel:"Datum *", aTimeLabel:"Uhrzeit *", aAddressLabel:"Adresse",
+    aNotesLabel:"Notizen", aReminderLabel:"Erinnerung",
+    oneDay:"Einen Tag vorher", oneHour:"Eine Stunde vorher",
+    fifteenMinutes:"15 Minuten vorher", noReminder:"Keine Erinnerung",
+    aSave:"Termin speichern", appointmentsListTitle:"Gespeicherte Termine",
+    callFormTitle:"Neuen Anruf eintragen", cNameLabel:"Name der Person *",
+    cPhoneLabel:"Telefonnummer", cDateLabel:"Anrufdatum *",
+    cTimeLabel:"Uhrzeit des Anrufs *", cTopicLabel:"Gesprächsthema",
+    cReminderLabel:"Erinnerung", cOneDay:"Einen Tag vorher",
+    cOneHour:"Eine Stunde vorher", cFifteenMinutes:"15 Minuten vorher",
+    cNoReminder:"Keine Erinnerung", cSave:"Anruf speichern",
+    callsListTitle:"Geplante Anrufe", emptyAppointments:"Noch keine Termine gespeichert.",
+    emptyCalls:"Noch keine Anrufe gespeichert.", date:"Datum", time:"Uhrzeit",
+    address:"Adresse", notes:"Notizen", person:"Person", phone:"Telefon",
+    topic:"Thema", reminder:"Erinnerung", none:"Keine",
+    delete:"Löschen", confirmDelete:"Diesen Eintrag löschen?",
+    savedAppointment:"Termin gespeichert.", savedCall:"Anruf gespeichert.",
+    deleted:"Eintrag gelöscht.", error:"Speichern fehlgeschlagen.",
+    invalidDate:"Datum und Uhrzeit müssen in der Zukunft liegen.",
+    aNamePlaceholder:"z. B. Arzttermin", aAddressPlaceholder:"Adresse des Termins",
+    aNotesPlaceholder:"Benötigte Unterlagen oder wichtige Hinweise",
+    cNamePlaceholder:"Name der Person", cPhonePlaceholder:"z. B. 0176...",
+    cTopicPlaceholder:"Worüber möchtest du sprechen?"
+},
+en: {
+    dir:"ltr", title:"My Personal Assistant",
+    subtitle:"Manage appointments, calls and important tasks in one place.",
+    notice:"Data is currently stored in this browser. Automatic reminders are not active yet.",
+    appointmentsTab:"📅 Appointments", callsTab:"📞 Calls",
+    appointmentFormTitle:"Add an Appointment", aNameLabel:"Appointment title *",
+    aDateLabel:"Date *", aTimeLabel:"Time *", aAddressLabel:"Address",
+    aNotesLabel:"Notes", aReminderLabel:"Reminder",
+    oneDay:"One day before", oneHour:"One hour before",
+    fifteenMinutes:"15 minutes before", noReminder:"No reminder",
+    aSave:"Save appointment", appointmentsListTitle:"Saved Appointments",
+    callFormTitle:"Schedule a Call", cNameLabel:"Person's name *",
+    cPhoneLabel:"Phone number", cDateLabel:"Call date *",
+    cTimeLabel:"Call time *", cTopicLabel:"Call topic",
+    cReminderLabel:"Reminder", cOneDay:"One day before",
+    cOneHour:"One hour before", cFifteenMinutes:"15 minutes before",
+    cNoReminder:"No reminder", cSave:"Save call",
+    callsListTitle:"Scheduled Calls", emptyAppointments:"No appointments saved yet.",
+    emptyCalls:"No calls saved yet.", date:"Date", time:"Time",
+    address:"Address", notes:"Notes", person:"Person", phone:"Phone",
+    topic:"Topic", reminder:"Reminder", none:"None",
+    delete:"Delete", confirmDelete:"Delete this item?",
+    savedAppointment:"Appointment saved.", savedCall:"Call saved.",
+    deleted:"Item deleted.", error:"Could not save the data.",
+    invalidDate:"Date and time must be in the future.",
+    aNamePlaceholder:"e.g. Doctor's appointment", aAddressPlaceholder:"Appointment address",
+    aNotesPlaceholder:"Required documents or important notes",
+    cNamePlaceholder:"Person's name", cPhonePlaceholder:"e.g. 0176...",
+    cTopicPlaceholder:"What do you need to discuss?"
+}
+};
+
+let lang = "fa";
+let appointments = [];
+let calls = [];
+
+function safeLoad(key) {
+    try {
+        const data = JSON.parse(localStorage.getItem(key) || "[]");
+        return Array.isArray(data) ? data.filter(x =>
+            x && typeof x.id === "string" &&
+            typeof x.name === "string" &&
+            typeof x.date === "string" &&
+            typeof x.time === "string"
+        ) : [];
+    } catch { return []; }
+}
+
+function safeSave() {
+    try {
+        localStorage.setItem("mylife-appointments", JSON.stringify(appointments));
+        localStorage.setItem("mylife-calls", JSON.stringify(calls));
+        return true;
+    } catch { return false; }
+}
+
+function setLanguage(value) {
+    lang = translations[value] ? value : "fa";
+    const t = translations[lang];
+    document.documentElement.lang = lang;
+    document.documentElement.dir = t.dir;
+
+    Object.keys(t).forEach(key => {
+        if ($(key)) $(key).textContent = t[key];
+    });
+
+    $("aName").placeholder = t.aNamePlaceholder;
+    $("aAddress").placeholder = t.aAddressPlaceholder;
+    $("aNotes").placeholder = t.aNotesPlaceholder;
+    $("cName").placeholder = t.cNamePlaceholder;
+    $("cPhone").placeholder = t.cPhonePlaceholder;
+    $("cTopic").placeholder = t.cTopicPlaceholder;
+
+    try { localStorage.setItem("mylife-language", lang); } catch {}
+    renderList(appointments, "appointmentsList", "emptyAppointments", "appointment");
+    renderList(calls, "callsList", "emptyCalls", "call");
+}
+
+function reminderLabel(value) {
+    const t = translations[lang];
+    return Number(value) === 1440 ? t.oneDay :
+           Number(value) === 60 ? t.oneHour :
+           Number(value) === 15 ? t.fifteenMinutes : t.none;
+}
+
+function renderList(items, targetId, emptyKey, type) {
+    const target = $(targetId);
+    const t = translations[lang];
+    target.replaceChildren();
+
+    if (!items.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = t[emptyKey];
+        target.appendChild(p);
+        return;
+    }
+
+    [...items].sort((a,b) =>
+        (a.date + "T" + a.time).localeCompare(b.date + "T" + b.time)
+    ).forEach(item => {
+        const card = document.createElement("article");
+        card.className = "item";
+
+        const heading = document.createElement("h3");
+        heading.textContent = item.name;
+        card.appendChild(heading);
+
+        const details = type === "appointment"
+            ? [[t.date,item.date],[t.time,item.time],[t.address,item.address],
+               [t.notes,item.notes]]
+            : [[t.person,item.name],[t.phone,item.phone],
+               [t.date,item.date],[t.time,item.time],[t.topic,item.topic]];
+
+        details.forEach(([label,value]) => {
+            if (!value) return;
+            const p = document.createElement("p");
+            p.textContent = label + ": " + value;
+            card.appendChild(p);
+        });
+
+        const reminder = document.createElement("p");
+        reminder.textContent = t.reminder + ": " + reminderLabel(item.reminder);
+        card.appendChild(reminder);
+
+        const button = document.createElement("button");
+        button.className = "delete";
+        button.textContent = t.delete;
+        button.addEventListener("click", () => {
+            if (!confirm(translations[lang].confirmDelete)) return;
+
+            const oldAppointments = appointments;
+            const oldCalls = calls;
+
+            if (type === "appointment")
+                appointments = appointments.filter(x => x.id !== item.id);
+            else
+                calls = calls.filter(x => x.id !== item.id);
+
+            if (!safeSave()) {
+                appointments = oldAppointments;
+                calls = oldCalls;
+                alert(translations[lang].error);
+                return;
+            }
+
+            renderList(appointments, "appointmentsList", "emptyAppointments", "appointment");
+            renderList(calls, "callsList", "emptyCalls", "call");
+        });
+
+        card.appendChild(button);
+        target.appendChild(card);
+    });
+}
+
+function validFuture(date,time) {
+    const value = new Date(date + "T" + time);
+    return !Number.isNaN(value.getTime()) && value.getTime() > Date.now();
+}
+
+$("appointmentsTab").addEventListener("click", () => showSection("appointments"));
+$("callsTab").addEventListener("click", () => showSection("calls"));
+
+function showSection(section) {
+    const appointmentsSelected = section === "appointments";
+    $("appointmentsSection").hidden = !appointmentsSelected;
+    $("callsSection").hidden = appointmentsSelected;
+    $("appointmentsTab").classList.toggle("active", appointmentsSelected);
+    $("callsTab").classList.toggle("active", !appointmentsSelected);
+}
+
+$("language").addEventListener("change", e => setLanguage(e.target.value));
+
+$("appointmentForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const t = translations[lang];
+    const item = {
+        id: crypto.randomUUID(),
+        name: $("aName").value.trim(),
+        date: $("aDate").value,
+        time: $("aTime").value,
+        address: $("aAddress").value.trim(),
+        notes: $("aNotes").value.trim(),
+        reminder: Number($("aReminder").value)
+    };
+
+    if (!validFuture(item.date,item.time)) {
+        alert(t.invalidDate);
+        return;
+    }
+
+    appointments.push(item);
+    if (!safeSave()) {
+        appointments.pop();
+        alert(t.error);
+        return;
+    }
+
+    e.target.reset();
+    renderList(appointments, "appointmentsList", "emptyAppointments", "appointment");
+    alert(t.savedAppointment);
+});
+
+$("callForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const t = translations[lang];
+    const item = {
+        id: crypto.randomUUID(),
+        name: $("cName").value.trim(),
+        phone: $("cPhone").value.trim(),
+        date: $("cDate").value,
+        time: $("cTime").value,
+        topic: $("cTopic").value.trim(),
+        reminder: Number($("cReminder").value)
+    };
+
+    if (!validFuture(item.date,item.time)) {
+        alert(t.invalidDate);
+        return;
+    }
+
+    calls.push(item);
+    if (!safeSave()) {
+        calls.pop();
+        alert(t.error);
+        return;
+    }
+
+    e.target.reset();
+    renderList(calls, "callsList", "emptyCalls", "call");
+    alert(t.savedCall);
+});
+
+appointments = safeLoad("mylife-appointments");
+calls = safeLoad("mylife-calls");
+
+let savedLanguage = "fa";
+try { savedLanguage = localStorage.getItem("mylife-language") || "fa"; } catch {}
+$("language").value = translations[savedLanguage] ? savedLanguage : "fa";
+setLanguage($("language").value);
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+      try {
+        const registration =
+          await navigator.serviceWorker.register("./service-worker.js");
+
+        console.log("Service Worker registered:", registration.scope);
+      } catch (error) {
+        console.error("Service Worker registration failed:", error);
+      }
+    });
+  }
+</script>
+<div style="padding: 16px; text-align: center;">
+  <button id="testNotification">
+    Test-Benachrichtigung
+  </button>
+</div>
+
+<script>
+  document
+    .getElementById("testNotification")
+    .addEventListener("click", async () => {
+      if (!("Notification" in window)) {
+        alert("Benachrichtigungen werden nicht unterstützt.");
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+
+      if (permission === "granted") {
+        new Notification("MyLife AI", {
+          body: "Die Test-Benachrichtigung funktioniert!"
+        });
+      } else {
+        alert("Benachrichtigungen wurden nicht erlaubt.");
+      }
+    });
+</script>
+</body>
+</html>
